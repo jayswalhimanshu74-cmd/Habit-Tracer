@@ -1,0 +1,49 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+
+    # Install root dependencies
+    - name: Install root dependencies
+      run: npm install
+
+    # Setup Server
+    - name: Install server dependencies
+      working-directory: ./server
+      run: npm ci
+
+    # Setup Client
+    - name: Install client dependencies
+      working-directory: ./client
+      run: npm ci
+
+    # Lint Client
+    - name: Lint Client
+      working-directory: ./client
+      run: npm run lint
+
+    # Build Client
+    - name: Build Client
+      working-directory: ./client
+      run: npm run build
