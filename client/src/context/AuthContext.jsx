@@ -62,9 +62,9 @@ useEffect(() => {
     }
   }, []);
 
-  const register = useCallback(async (name, username, email, password) => {
+  const register = useCallback(async (name, email, password) => {
     try {
-      const res = await axios.post('/api/auth/register', { name, username, email, password });
+      const res = await axios.post('/api/auth/register', { name, email, password });
       const { token, user } = res.data.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(sanitizeUser(user)));

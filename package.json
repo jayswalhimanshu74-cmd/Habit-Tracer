@@ -24,5 +24,8 @@
     "client/**/*.{js,jsx,ts,tsx}": [
       "npm run lint --prefix client"
     ]
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.5"
   }
 }

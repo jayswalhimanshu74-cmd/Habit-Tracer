@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 
 router.use(auth);
 
-router.get('/', habitController.getHabitLogs);
+router.get('/', habitController.getHabits);
 router.post('/', habitController.createHabit);
 router.put('/:id', habitController.updateHabit);
 router.delete('/:id', habitController.deleteHabit);

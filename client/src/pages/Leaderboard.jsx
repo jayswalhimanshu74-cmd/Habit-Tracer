@@ -13,7 +13,7 @@ const Leaderboard = () => {
   const load = async () => {
     try {
       const res = await leaderboardService.getLeaderboard();
-      setUsers(res.data);
+      setUsers(res.data.data);
     } catch (err) {
       console.error('Failed to fetch leaderboard', err);
     } finally {

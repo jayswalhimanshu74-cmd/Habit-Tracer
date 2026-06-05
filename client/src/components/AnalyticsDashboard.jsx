@@ -19,7 +19,7 @@ const AnalyticsDashboard = () => {
   const load = async () => {
     try {
       const res = await analyticsService.getSummary();
-      setAnalytics(res.data);
+      setAnalytics(res.data.data);
     } catch (err) {
       console.error('Analytics failed', err);
     } finally {

@@ -320,7 +320,7 @@ exports.toggleHabit = async (req, res) => {
 
 
 
-exports.getHabitLogs = async (req, res) => {
+exports.getHabits = async (req, res) => {
   try {
     const result = await db.query(
       'SELECT * FROM habits WHERE user_id = $1::uuid ORDER BY created_at DESC',
