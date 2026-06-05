@@ -9,7 +9,8 @@ const Leaderboard = () => {
   const navigate = useNavigate();
 
 
-   const fetchLeaderboard = async () => {
+   useEffect(() => {
+  const load = async () => {
     try {
       const res = await leaderboardService.getLeaderboard();
       setUsers(res.data);
@@ -19,12 +20,8 @@ const Leaderboard = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [fetchLeaderboard]);
-
- 
+  load();
+}, []);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20">

@@ -15,7 +15,8 @@ const AnalyticsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(null);
 
-   const fetchAnalytics = async () => {
+  useEffect(() => {
+  const load = async () => {
     try {
       const res = await analyticsService.getSummary();
       setAnalytics(res.data);
@@ -25,12 +26,9 @@ const AnalyticsDashboard = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchAnalytics();
-  }, [fetchAnalytics]);
-
+  load();
+}, []); 
  
-
   const handleExport = async (type) => {
     setExporting(type);
     try {

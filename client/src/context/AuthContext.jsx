@@ -1,5 +1,5 @@
 // client/src/context/AuthContext.jsx
-import  { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import  { createContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/api';
 import { jwtDecode } from "jwt-decode";
 

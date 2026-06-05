@@ -38,35 +38,37 @@ const userId = user?.id;
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
   };
-  
-    const fetchHabits = useCallback(async () => {
+
+  const fetchHabits = useCallback(async () => {
   try {
     const res = await habitService.getHabits();
     setHabits(res.data);
   } catch (err) {
     console.error('Failed to fetch habits', err);
   }
-}, []); // no external deps — stable reference
+}, []);
 
 const fetchStats = useCallback(async () => {
   try {
     const res = await dashboardService.getStats();
     setStats(res.data);
-  } catch (err) {
-    console.error('Failed to fetch stats', err);
+  } catch {
+    console.error('Failed to fetch stats');
   }
 }, []);
 
-  const fetchInsights = async () => {
-    try {
-      const res = await insightService.getSmartInsights();
-      setInsights(res.data);
-    } catch (err) {
-      console.error('Failed to fetch insights', err);
-    }
-  };
+const fetchInsights = useCallback(async () => { // ✅ wrap in useCallback
+  try {
+    const res = await insightService.getSmartInsights();
+    setInsights(res.data);
+  } catch {
+    console.error('Failed to fetch insights');
+  }
+}, []); // ✅ stable
 
- 
+const fetchData = useCallback(async () => {
+  await Promise.all([fetchHabits(), fetchStats(), fetchInsights()]);
+}, [fetchHabits, fetchStats, fetchInsights]);
 
   const fetchChallenge = async () => {
     try {
@@ -88,10 +90,6 @@ const fetchStats = useCallback(async () => {
   };
 
 
-  const fetchData = useCallback(async () => {
-  await Promise.all([fetchHabits(), fetchStats(), fetchInsights()]);
-}, [ fetchHabits, fetchStats, fetchInsights]); 
-
   useEffect(() => {
     const initialLoad = async () => {
       setLoading(true);
@@ -100,6 +98,7 @@ const fetchStats = useCallback(async () => {
     };
     initialLoad();
   }, [fetchData]);
+
    useEffect(() => {
     // Only connect once user is confirmed authenticated
     if (!userId) return;

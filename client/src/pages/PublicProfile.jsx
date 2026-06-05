@@ -11,7 +11,8 @@ const PublicProfile = () => {
   const navigate = useNavigate();
 
 
-  const fetchProfile = async () => {
+  useEffect(() => {
+  const load = async () => {
     try {
       const res = await userService.getProfile(username);
       setProfile(res.data);
@@ -21,12 +22,9 @@ const PublicProfile = () => {
       setLoading(false);
     }
   };
+  load();
+}, [username]); // ✅ re-runs when username changes
 
-  useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
-
-  
   const shareProfile = () => {
     navigator.clipboard.writeText(window.location.href);
     alert('Profile link copied to clipboard!');
