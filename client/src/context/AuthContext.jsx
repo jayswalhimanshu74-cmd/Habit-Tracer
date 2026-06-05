@@ -11,8 +11,9 @@ const isTokenValid = (token) => {
   } catch {
     return false;
   }
+
 };
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 // Only store what the UI actually needs — never persist sensitive fields
 const sanitizeUser = (user) => ({
