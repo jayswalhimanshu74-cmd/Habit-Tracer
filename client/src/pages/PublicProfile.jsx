@@ -15,7 +15,7 @@ const PublicProfile = () => {
     try {
       const res = await userService.getProfile(username);
       setProfile(res.data);
-    } catch (_err) {
+    } catch {
       setError('User not found');
     } finally {
       setLoading(false);
@@ -24,7 +24,7 @@ const PublicProfile = () => {
 
   useEffect(() => {
     fetchProfile();
-  }, [username]);
+  }, [fetchProfile]);
 
   
   const shareProfile = () => {

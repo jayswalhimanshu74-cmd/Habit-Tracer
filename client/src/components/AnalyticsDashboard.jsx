@@ -8,6 +8,7 @@ import {
   Activity,
   Loader2
 } from 'lucide-react';
+import { PieChart } from 'recharts';
 
 const AnalyticsDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -26,7 +27,7 @@ const AnalyticsDashboard = () => {
   };
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+  }, [fetchAnalytics]);
 
  
 

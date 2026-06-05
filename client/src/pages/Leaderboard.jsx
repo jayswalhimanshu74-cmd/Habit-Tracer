@@ -19,10 +19,10 @@ const Leaderboard = () => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchLeaderboard();
-  }, []);
+  }, [fetchLeaderboard]);
 
  
 
