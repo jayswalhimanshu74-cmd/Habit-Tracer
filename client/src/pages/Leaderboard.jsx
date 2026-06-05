@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { leaderboardService } from '../services/api';
-import { Trophy, Medal, Crown, ArrowLeft, Star } from 'lucide-react';
+import { Trophy, Crown, ArrowLeft, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Leaderboard = () => {
@@ -8,11 +8,8 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, []);
 
-  const fetchLeaderboard = async () => {
+   const fetchLeaderboard = async () => {
     try {
       const res = await leaderboardService.getLeaderboard();
       setUsers(res.data);
@@ -22,6 +19,12 @@ const Leaderboard = () => {
       setLoading(false);
     }
   };
+  
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
+
+ 
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20">

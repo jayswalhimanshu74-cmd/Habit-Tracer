@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const habitService = require('../services/habitService');
 const { getTodayUTC, formatDateUTC } = require('../utils/dateUtils');
-const { VALID_DIFFICULTIES, VALID_CATEGORIES, isValidTime } = require('../utils/validators'); // 
+const { VALID_DIFFICULTIES, VALID_CATEGORIES, isValidTime } = require('../utils/validators');// 
 
 
 exports.getHabitLogs = async (req, res) => {
@@ -39,8 +39,8 @@ exports.getHabitLogs = async (req, res) => {
 };
 
 exports.createHabit = async (req, res) => {
-  const { title, category, reminder_time } = req.body;
-
+  const { title, category, reminder_time, difficulty } = req.body;
+  
   try {
     if (!title || typeof title !== 'string' || title.trim().length === 0) {
       return res.status(400).json({ success: false, message: 'Title is required' });
@@ -318,4 +318,18 @@ exports.toggleHabit = async (req, res) => {
   }
 };
 
+
+
+exports.getHabitLogs = async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT * FROM habits WHERE user_id = $1::uuid ORDER BY created_at DESC',
+      [req.user]
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
