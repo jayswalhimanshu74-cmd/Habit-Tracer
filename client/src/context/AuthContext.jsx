@@ -28,26 +28,28 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     setUser(null);
   }, []);
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  const storedUser = localStorage.getItem('user');
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-
-    if (token && storedUser) {
-      if (!isTokenValid(token)) {
+  if (token && storedUser) {
+    if (!isTokenValid(token)) {
+      setTimeout(() => clearSession(), 0);
+    } else {
+      try {
+        const parsed = JSON.parse(storedUser);
+        setTimeout(() => {
+          setUser(parsed);
+          setLoading(false); // ✅ inside setTimeout — not synchronous
+        }, 0);
+        return; // ✅ skip the setLoading(false) below
+      } catch {
         setTimeout(() => clearSession(), 0);
-      } else {
-        try {
-          const parsed = JSON.parse(storedUser);  // ✅ declare parsed
-        setTimeout(() => setUser(parsed), 0);   // ✅ use it deferred
-        } catch {
-          setTimeout(() => clearSession(), 0);
-        }
       }
     }
-    setLoading(false);
-  }, [clearSession]);
-
+  }
+  setTimeout(() => setLoading(false), 0); // ✅ deferred
+}, [clearSession]);
   const login = useCallback(async (email, password) => {
     try {
       const res = await axios.post('/api/auth/login', { email, password });

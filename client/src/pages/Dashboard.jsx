@@ -97,7 +97,7 @@ const fetchData = useCallback(async () => {
       setLoading(false);
     };
     initialLoad();
-  }, [fetchData]);
+  }, []);
 
    useEffect(() => {
     // Only connect once user is confirmed authenticated
