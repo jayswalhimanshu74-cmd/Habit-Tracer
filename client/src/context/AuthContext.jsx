@@ -1,7 +1,7 @@
-// client/src/context/AuthContext.jsx
-import  { createContext, useState, useEffect, useCallback } from 'react';
-import { authService } from '../services/api';
-import { jwtDecode } from "jwt-decode";
+import { useState, useEffect, useCallback } from 'react';
+import { AuthContext } from './useAuth'; // ✅ import from useAuth
+import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 
 const isTokenValid = (token) => {
   if (!token) return false;
@@ -11,11 +11,8 @@ const isTokenValid = (token) => {
   } catch {
     return false;
   }
-
 };
-export const AuthContext = createContext();
 
-// Only store what the UI actually needs — never persist sensitive fields
 const sanitizeUser = (user) => ({
   id: user.id,
   name: user.name,
@@ -38,77 +35,50 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('user');
 
     if (token && storedUser) {
-      // Check token expiry before trusting stored session
       if (!isTokenValid(token)) {
-
-        // Token is expired — clear everything and send to login
-       setTimeout(()=>clearSession(),0)
+        setTimeout(() => clearSession(), 0);
       } else {
         try {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setUser(JSON.parse(storedUser));
-          // ↑ safe parse — corrupted JSON won't crash the app
         } catch {
-          // Corrupted localStorage — clear and start fresh
-          setTimeout(()=>clearSession(),0)
+          setTimeout(() => clearSession(), 0);
         }
       }
     }
-
     setLoading(false);
   }, [clearSession]);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     try {
-      const res = await authService.login({ email, password });
-
-      if (!res.data?.success) {
-        throw new Error(res.data?.message || 'Login failed');
-      }
-
-      const { token, user } = res.data;
-      const safeUser = sanitizeUser(user);
-
+      const res = await axios.post('/api/auth/login', { email, password });
+      const { token, user } = res.data.data;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(safeUser));
-      setUser(safeUser);
-      return safeUser;
-
+      localStorage.setItem('user', JSON.stringify(sanitizeUser(user)));
+      setUser(sanitizeUser(user));
     } catch (err) {
-      // Normalize error message for the calling component
       throw new Error('Login failed', { cause: err });
     }
-  };
+  }, []);
 
-  const register = async (name, email, password) => {
+  const register = useCallback(async (name, username, email, password) => {
     try {
-      const res = await authService.register({ name, email, password });
-
-      if (!res.data?.success) {
-        throw new Error(res.data?.message || 'Registration failed');
-      }
-
-      const { token, user } = res.data;
-      const safeUser = sanitizeUser(user);
-
+      const res = await axios.post('/api/auth/register', { name, username, email, password });
+      const { token, user } = res.data.data;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(safeUser));
-      setUser(safeUser);
-      return safeUser;
-
+      localStorage.setItem('user', JSON.stringify(sanitizeUser(user)));
+      setUser(sanitizeUser(user));
     } catch (err) {
-      throw new Error('Registration failed', { cause: err }); // line 100
+      throw new Error('Registration failed', { cause: err });
     }
-  };
+  }, []);
 
   const logout = useCallback(() => {
     clearSession();
   }, [clearSession]);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, clearSession }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
