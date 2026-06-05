@@ -42,7 +42,7 @@ const userId = user?.id;
   const fetchHabits = useCallback(async () => {
   try {
     const res = await habitService.getHabits();
-    setHabits(res.data);
+    setHabits(res.data.data);
   } catch (err) {
     console.error('Failed to fetch habits', err);
   }
@@ -51,7 +51,7 @@ const userId = user?.id;
 const fetchStats = useCallback(async () => {
   try {
     const res = await dashboardService.getStats();
-    setStats(res.data);
+    setStats(res.data.data);
   } catch {
     console.error('Failed to fetch stats');
   }
@@ -60,7 +60,7 @@ const fetchStats = useCallback(async () => {
 const fetchInsights = useCallback(async () => { // ✅ wrap in useCallback
   try {
     const res = await insightService.getSmartInsights();
-    setInsights(res.data);
+    setInsights(res.data.data);
   } catch {
     console.error('Failed to fetch insights');
   }
@@ -73,7 +73,7 @@ const fetchData = useCallback(async () => {
   const fetchChallenge = async () => {
     try {
       const res = await challengeService.getToday();
-      setChallenge(res.data);
+      setChallenge(res.data.data);
     } catch (err) {
       console.error('Failed to fetch challenge', err);
     }
@@ -97,7 +97,7 @@ const fetchData = useCallback(async () => {
       setLoading(false);
     };
     initialLoad();
-  }, [fetchData]);
+  }, []);
 
    useEffect(() => {
     // Only connect once user is confirmed authenticated

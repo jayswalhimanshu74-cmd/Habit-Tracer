@@ -15,7 +15,7 @@ const PublicProfile = () => {
   const load = async () => {
     try {
       const res = await userService.getProfile(username);
-      setProfile(res.data);
+      setProfile(res.data.data);
     } catch {
       setError('User not found');
     } finally {
