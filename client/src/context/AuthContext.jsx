@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from './useAuth'; // ✅ import from useAuth
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import { parsePath } from 'react-router-dom';
 
 const isTokenValid = (token) => {
   if (!token) return false;
@@ -40,6 +41,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         try {
           setUser(JSON.parse(storedUser));
+          setTimeout(()=>setUser(parsed),0)
         } catch {
           setTimeout(() => clearSession(), 0);
         }
