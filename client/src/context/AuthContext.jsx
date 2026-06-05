@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from './useAuth'; // ✅ import from useAuth
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
-import { parsePath } from 'react-router-dom';
-
 const isTokenValid = (token) => {
   if (!token) return false;
   try {
@@ -40,8 +38,8 @@ export const AuthProvider = ({ children }) => {
         setTimeout(() => clearSession(), 0);
       } else {
         try {
-          setUser(JSON.parse(storedUser));
-          setTimeout(()=>setUser(parsed),0)
+          const parsed = JSON.parse(storedUser);  // ✅ declare parsed
+        setTimeout(() => setUser(parsed), 0);   // ✅ use it deferred
         } catch {
           setTimeout(() => clearSession(), 0);
         }
