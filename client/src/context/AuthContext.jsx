@@ -1,11 +1,10 @@
 // client/src/context/AuthContext.jsx
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import  { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { authService } from '../services/api';
 import { jwtDecode } from "jwt-decode";
 
 const isTokenValid = (token) => {
   if (!token) return false;
-
   try {
     const payload = jwtDecode(token);
     return payload.exp * 1000 > Date.now();
@@ -44,6 +43,7 @@ export const AuthProvider = ({ children }) => {
         clearSession();
       } else {
         try {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setUser(JSON.parse(storedUser));
           // ↑ safe parse — corrupted JSON won't crash the app
         } catch {
@@ -74,8 +74,7 @@ export const AuthProvider = ({ children }) => {
 
     } catch (err) {
       // Normalize error message for the calling component
-      const message = err.response?.data?.message || err.message || 'Login failed';
-      throw new Error(message);
+      throw new Error('Login failed', { cause: err });
     }
   };
 
@@ -96,8 +95,7 @@ export const AuthProvider = ({ children }) => {
       return safeUser;
 
     } catch (err) {
-      const message = err.response?.data?.message || err.message || 'Registration failed';
-      throw new Error(message);
+      throw new Error('Registration failed', { cause: err }); // line 100
     }
   };
 

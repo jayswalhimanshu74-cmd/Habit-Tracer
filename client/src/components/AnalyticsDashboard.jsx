@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { analyticsService, exportService } from '../services/api';
 import { 
   TrendingUp, 
   Target, 
   Calendar, 
-  Download, 
   FileText, 
-  PieChart, 
   Activity,
-  ChevronRight,
   Loader2
 } from 'lucide-react';
 
@@ -17,11 +14,7 @@ const AnalyticsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(null);
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  const fetchAnalytics = async () => {
+   const fetchAnalytics = async () => {
     try {
       const res = await analyticsService.getSummary();
       setAnalytics(res.data);
@@ -31,6 +24,11 @@ const AnalyticsDashboard = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+ 
 
   const handleExport = async (type) => {
     setExporting(type);

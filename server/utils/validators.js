@@ -35,4 +35,4 @@ const isValidTitle = (t) =>
 const isValidEmail = (email) =>
   typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-module.exports = { VALID_CATEGORIES, isValidTime, isValidTitle, isValidEmail };
+module.exports= { VALID_CATEGORIES, VALID_DIFFICULTIES, isValidTime, isValidTitle, isValidEmail };

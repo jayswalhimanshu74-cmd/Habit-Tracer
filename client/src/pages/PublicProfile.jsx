@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import{ useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { userService } from '../services/api';
-import { User, Flame, Trophy, Share2, ArrowLeft, Star, LayoutGrid } from 'lucide-react';
+import { User, Flame, Share2, ArrowLeft, Star, LayoutGrid } from 'lucide-react';
 
 const PublicProfile = () => {
   const { username } = useParams();
@@ -10,21 +10,23 @@ const PublicProfile = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchProfile();
-  }, [username]);
 
   const fetchProfile = async () => {
     try {
       const res = await userService.getProfile(username);
       setProfile(res.data);
-    } catch (err) {
+    } catch (_err) {
       setError('User not found');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchProfile();
+  }, [username]);
+
+  
   const shareProfile = () => {
     navigator.clipboard.writeText(window.location.href);
     alert('Profile link copied to clipboard!');

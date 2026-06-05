@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { habitService } from '../services/api';
 
 const HabitModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
-  const [title, setTitle]             = useState('');
-  const [category, setCategory]       = useState('General');
-  const [difficulty, setDifficulty]   = useState('Medium'); // ✅
-  const [reminderTime, setReminderTime] = useState('');
+  const [title, setTitle]             = useState(initialData?.title||'');
+  const [category, setCategory]       = useState(initialData?.category||'General');
+  const [difficulty, setDifficulty]   = useState(initialData?.difficulty||'Medium'); 
+  const [reminderTime, setReminderTime] = useState(initialData?.reminder_time||'');
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState('');
 
@@ -14,20 +14,7 @@ const HabitModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const categories   = ['General', 'Health', 'Fitness', 'Learning', 'Mindfulness', 'Productivity', 'Social', 'Finance'];
   const difficulties = ['Easy', 'Medium', 'Hard'];
 
-  useEffect(() => {
-    if (initialData) {
-      setTitle(initialData.title || '');
-      setCategory(initialData.category || 'General');
-      setDifficulty(initialData.difficulty || 'Medium'); // ✅
-      setReminderTime(initialData.reminder_time || '');
-    } else {
-      setTitle('');
-      setCategory('General');
-      setDifficulty('Medium'); // ✅
-      setReminderTime('');
-    }
-  }, [initialData, isOpen]);
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;

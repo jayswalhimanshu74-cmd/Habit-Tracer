@@ -1,7 +1,7 @@
-import React, { useState, useEffect,useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
+import{ useState, useEffect,useRef } from 'react';
+import { useAuth } from '../context/useAuth';
 import { habitService, dashboardService, challengeService, insightService } from '../services/api';
-import { Plus, Flame, CheckCircle, Circle, Trash2, LogOut, Filter, Search, Trophy, Edit3, TrendingUp, Calendar, Clock, Sparkles, BarChart3, Target, Medal, Share2, Star, Activity } from 'lucide-react';
+import { Plus, Flame, CheckCircle, Circle, Trash2, LogOut, Filter, Search, Trophy, Edit3, TrendingUp, Calendar,  Sparkles, BarChart3, Target, Medal, Share2, Star, Activity } from 'lucide-react';
 import HabitModal from '../components/HabitModal';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import { useNavigate } from 'react-router-dom';
@@ -122,7 +122,7 @@ const fetchStats = useCallback(async () => {
 
   const fetchData = useCallback(async () => {
   await Promise.all([fetchHabits(), fetchStats(), fetchInsights()]);
-}, []); 
+}, [ fetchHabits, fetchStats, fetchInsights]); 
 
   useEffect(() => {
     const initialLoad = async () => {
@@ -150,7 +150,8 @@ const fetchStats = useCallback(async () => {
       await habitService.toggleHabit(id);
       await fetchData();
     } catch (err) {
-      setHabits(previousHabits);
+      console.error('Failed to load Challenge',err);
+     setHabits(previousHabits);
       showNotification('Failed to update habit status', 'error');
     } finally {
       setTogglingId(null);
