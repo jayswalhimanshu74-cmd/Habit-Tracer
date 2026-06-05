@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x] # ✅ removed 18.x — ESLint 10 requires Node 20+
 
     steps:
     - uses: actions/checkout@v4
@@ -24,26 +24,21 @@ jobs:
         cache: 'npm'
         cache-dependency-path: '**/package-lock.json'
 
-    # Install root dependencies
     - name: Install root dependencies
       run: npm install
 
-    # Setup Server
     - name: Install server dependencies
       working-directory: ./server
       run: npm ci
 
-    # Setup Client
     - name: Install client dependencies
       working-directory: ./client
       run: npm ci
 
-    # Lint Client
     - name: Lint Client
       working-directory: ./client
       run: npm run lint
 
-    # Build Client
     - name: Build Client
       working-directory: ./client
       run: npm run build

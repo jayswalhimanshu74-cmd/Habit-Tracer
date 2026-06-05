@@ -1,5 +1,5 @@
 // client/src/context/AuthContext.jsx
-import  { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import  { createContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/api';
 import { jwtDecode } from "jwt-decode";
 
@@ -11,8 +11,9 @@ const isTokenValid = (token) => {
   } catch {
     return false;
   }
+
 };
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 // Only store what the UI actually needs — never persist sensitive fields
 const sanitizeUser = (user) => ({
@@ -39,8 +40,9 @@ export const AuthProvider = ({ children }) => {
     if (token && storedUser) {
       // Check token expiry before trusting stored session
       if (!isTokenValid(token)) {
+
         // Token is expired — clear everything and send to login
-        clearSession();
+       setTimeout(()=>clearSession(),0)
       } else {
         try {
           // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -48,7 +50,7 @@ export const AuthProvider = ({ children }) => {
           // ↑ safe parse — corrupted JSON won't crash the app
         } catch {
           // Corrupted localStorage — clear and start fresh
-          clearSession();
+          setTimeout(()=>clearSession(),0)
         }
       }
     }
@@ -110,4 +112,3 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);

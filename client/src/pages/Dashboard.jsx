@@ -1,4 +1,4 @@
-import{ useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { useAuth } from '../context/useAuth';
 import { habitService, dashboardService, challengeService, insightService } from '../services/api';
 import { Plus, Flame, CheckCircle, Circle, Trash2, LogOut, Filter, Search, Trophy, Edit3, TrendingUp, Calendar,  Sparkles, BarChart3, Target, Medal, Share2, Star, Activity } from 'lucide-react';
@@ -34,7 +34,72 @@ const Dashboard = () => {
 // ✅ Extract just the id — primitive value, stable reference
 const userId = user?.id;
 
+   const showNotification = (message, type) => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 5000);
+  };
+
+  const fetchHabits = useCallback(async () => {
+  try {
+    const res = await habitService.getHabits();
+    setHabits(res.data);
+  } catch (err) {
+    console.error('Failed to fetch habits', err);
+  }
+}, []);
+
+const fetchStats = useCallback(async () => {
+  try {
+    const res = await dashboardService.getStats();
+    setStats(res.data);
+  } catch {
+    console.error('Failed to fetch stats');
+  }
+}, []);
+
+const fetchInsights = useCallback(async () => { // ✅ wrap in useCallback
+  try {
+    const res = await insightService.getSmartInsights();
+    setInsights(res.data);
+  } catch {
+    console.error('Failed to fetch insights');
+  }
+}, []); // ✅ stable
+
+const fetchData = useCallback(async () => {
+  await Promise.all([fetchHabits(), fetchStats(), fetchInsights()]);
+}, [fetchHabits, fetchStats, fetchInsights]);
+
+  const fetchChallenge = async () => {
+    try {
+      const res = await challengeService.getToday();
+      setChallenge(res.data);
+    } catch (err) {
+      console.error('Failed to fetch challenge', err);
+    }
+  };
+
+  const handleCompleteChallenge = async () => {
+    if (!challenge || challenge.completed) return;
+    try {
+      await challengeService.complete(challenge.id);
+      fetchChallenge();
+    } catch (err) {
+      console.error('Failed to complete challenge', err);
+    }
+  };
+
+
   useEffect(() => {
+    const initialLoad = async () => {
+      setLoading(true);
+      await fetchData();
+      setLoading(false);
+    };
+    initialLoad();
+  }, [fetchData]);
+
+   useEffect(() => {
     // Only connect once user is confirmed authenticated
     if (!userId) return;
 
@@ -69,69 +134,6 @@ const userId = user?.id;
     };
   }, [userId]); // re-runs if user changes (e.g. after login)
 
-  const fetchInsights = async () => {
-    try {
-      const res = await insightService.getSmartInsights();
-      setInsights(res.data);
-    } catch (err) {
-      console.error('Failed to fetch insights', err);
-    }
-  };
-
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 5000);
-  };
-
-  const fetchChallenge = async () => {
-    try {
-      const res = await challengeService.getToday();
-      setChallenge(res.data);
-    } catch (err) {
-      console.error('Failed to fetch challenge', err);
-    }
-  };
-
-  const handleCompleteChallenge = async () => {
-    if (!challenge || challenge.completed) return;
-    try {
-      await challengeService.complete(challenge.id);
-      fetchChallenge();
-    } catch (err) {
-      console.error('Failed to complete challenge', err);
-    }
-  };
-
-  const fetchHabits = useCallback(async () => {
-  try {
-    const res = await habitService.getHabits();
-    setHabits(res.data);
-  } catch (err) {
-    console.error('Failed to fetch habits', err);
-  }
-}, []); // no external deps — stable reference
-
-const fetchStats = useCallback(async () => {
-  try {
-    const res = await dashboardService.getStats();
-    setStats(res.data);
-  } catch (err) {
-    console.error('Failed to fetch stats', err);
-  }
-}, []);
-
-  const fetchData = useCallback(async () => {
-  await Promise.all([fetchHabits(), fetchStats(), fetchInsights()]);
-}, [ fetchHabits, fetchStats, fetchInsights]); 
-
-  useEffect(() => {
-    const initialLoad = async () => {
-      setLoading(true);
-      await fetchData();
-      setLoading(false);
-    };
-    initialLoad();
-  }, [fetchData]);
 
   const handleToggle = async (id) => {
     if (togglingId === id) return;
