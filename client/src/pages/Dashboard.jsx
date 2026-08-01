@@ -97,7 +97,7 @@ const fetchData = useCallback(async () => {
       setLoading(false);
     };
     initialLoad();
-  }, []);
+  }, [fetchData]);
 
    useEffect(() => {
     // Only connect once user is confirmed authenticated
@@ -132,7 +132,8 @@ const fetchData = useCallback(async () => {
       socket.disconnect(); // ← this was completely missing before
       socketRef.current = null;
     };
-  }, [userId]); // re-runs if user changes (e.g. after login)
+  }, [userId, fetchData]);
+ // re-runs if user changes (e.g. after login)
 
 
   const handleToggle = async (id) => {
@@ -144,10 +145,6 @@ const fetchData = useCallback(async () => {
     setHabits(prev => prev.map(h => 
       h.id === id ? { ...h, completedToday: !h.completedToday } : h
     ));
-    setHabits(prev => prev.map(h =>
-    h.id === id ? { ...h, completedToday: !h.completedToday } : h
-  ));
-
     try {
       await habitService.toggleHabit(id);
       await fetchData();

@@ -1,10 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext'; // ✅ AuthProvider from AuthContext
-import { useAuth } from './context/useAuth';    import Login from './pages/Login';
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
+import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Leaderboard from './pages/Leaderboard';
 import PublicProfile from './pages/PublicProfile';
+import NotFound from './pages/NotFound';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -43,10 +45,12 @@ function App() {
           } />
           <Route path="/user/:username" element={<PublicProfile />} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>
   );
 }
+
 
 export default App;
