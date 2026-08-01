@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS user_challenges (
     completed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Streak Milestones Table
 CREATE TABLE IF NOT EXISTS streak_milestones (
   id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -79,17 +80,9 @@ CREATE TABLE IF NOT EXISTS streak_milestones (
   UNIQUE (user_id, milestone)
 );
 
--- Prevents streak milestone bonus points being awarded more than once
--- e.g. user can only ever receive the 7-day bonus once, the 30-day bonus once
-CREATE TABLE IF NOT EXISTS streak_milestones (
-  user_id    UUID    NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  milestone  INTEGER NOT NULL,
-  awarded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (user_id, milestone)
-);
-
 CREATE INDEX IF NOT EXISTS idx_streak_milestones_user
   ON streak_milestones (user_id);
+
 -- Seed Badges
 INSERT INTO badges (name, description, icon) VALUES 
 ('Starter', 'Completed your first habit!', 'Star'),
