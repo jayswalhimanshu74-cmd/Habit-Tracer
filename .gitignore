@@ -16,7 +16,7 @@ dist-ssr
 
 *.zip
 client.zip
-
+.github.zip
 
 # Editor directories and files
 .vscode/*
