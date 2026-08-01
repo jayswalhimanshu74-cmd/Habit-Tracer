@@ -22,7 +22,7 @@ const Register = () => {
       await register(name, email, password);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to register');
+      setError(err.message);
     }
   };
 

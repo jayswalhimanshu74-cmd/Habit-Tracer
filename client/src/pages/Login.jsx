@@ -21,7 +21,8 @@ const Login = () => {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to login');
+      // ✅ show the error in the UI for the user to see
+      setError(err.message);
     }
   };
 

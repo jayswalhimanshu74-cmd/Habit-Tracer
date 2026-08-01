@@ -255,9 +255,10 @@ const checkGamification = async (userId, habitId, io) => {
 
     // Emit AFTER commit so the client only hears about it if it actually saved
     if (milestoneMessage) {
-      io.to(userId).emit('achievement', { message: milestoneMessage });
+      io?.to?.(userId)?.emit?.('achievement', { message: milestoneMessage });
     }
-    io.to(userId).emit('statsUpdated');
+    io?.to?.(userId)?.emit?.('statsUpdated');
+
 
   } catch (err) {
     await client.query('ROLLBACK'); // ✅ undo everything on failure
@@ -308,7 +309,8 @@ exports.toggleHabit = async (req, res) => {
     } else {
       // Still notify the client to refresh stats display,
       // but don't award any points
-      req.io.to(req.user).emit('statsUpdated');
+      req.io?.to?.(req.user)?.emit?.('statsUpdated');
+
     }
 
     res.json({ success: true, data: resultLog });
@@ -317,8 +319,6 @@ exports.toggleHabit = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
-
-
 
 exports.getHabits = async (req, res) => {
   try {

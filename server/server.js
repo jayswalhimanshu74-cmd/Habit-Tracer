@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const helmet = require('helmet');
 const socketAuth = require('./middleware/socketAuth');
 const authRoutes = require('./routes/authRoutes');
+const { authLimiter } = require('./middleware/rateLimiter');
 const habitRoutes = require('./routes/habitRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -15,13 +16,28 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const exportRoutes = require('./routes/exportRoutes');
 
 const app = express();
+
+// Enable trust proxy for rate limiting behind reverse proxies (e.g. Vercel)
+app.set('trust proxy', 1);
+
 app.use(helmet());
+
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
-// --- Same corsOptions object used in two places ---
 const corsOptions = {
-  origin: CLIENT_URL,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: (origin, callback) => {
+    if (
+      !origin ||
+      origin === CLIENT_URL ||
+      origin.endsWith('.vercel.app') ||
+      process.env.NODE_ENV !== 'production'
+    ) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 };
@@ -34,25 +50,16 @@ io.use(socketAuth);
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-
-  // ✅ Use the verified userId from the token — don't trust client input
   socket.join(socket.userId);
   console.log(`User ${socket.userId} joined their room`);
-
-  // ✅ Remove the 'join' handler entirely — client can no longer
-  //    spoof a different userId to join someone else's room
-  // socket.on('join', ...) — DELETED
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.userId);
   });
 });
 
-app.use(cors(corsOptions)); // ✅ was: app.use(cors()) — allowed *
+app.use(cors(corsOptions));
 app.use(express.json());
-
-
-
 
 // Pass io to routes
 app.use((req, res, next) => {
@@ -60,8 +67,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoints
+app.get('/api', (req, res) => {
+  res.json({ success: true, message: 'HabitTracker API is operational' });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ success: true, status: 'healthy', timestamp: new Date().toISOString() });
+});
+
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/habits', habitRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userRoutes);
@@ -71,13 +87,25 @@ app.use('/api/insights', insightRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/export', exportRoutes);
 
+// API 404 Handler
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ success: false, message: 'API route not found' });
+});
 
-// Socket logic
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('Global Error Handler:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+  });
+});
+
 const PORT = process.env.PORT || 8000;
-
 
 if (require.main === module) {
   server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-module.exports = app; // ✅
+module.exports = app;
+
