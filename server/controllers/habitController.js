@@ -322,14 +322,24 @@ exports.toggleHabit = async (req, res) => {
 
 exports.getHabits = async (req, res) => {
   try {
+    const today = getTodayUTC();
     const result = await db.query(
-      'SELECT * FROM habits WHERE user_id = $1::uuid ORDER BY created_at DESC',
-      [req.user]
+      `SELECT 
+         h.*,
+         COALESCE(hl.status, false) AS "completedToday"
+       FROM habits h
+       LEFT JOIN habit_logs hl 
+         ON h.id = hl.habit_id 
+         AND hl.date = $2
+       WHERE h.user_id = $1::uuid
+       ORDER BY h.created_at DESC`,
+      [req.user, today]
     );
     res.json({ success: true, data: result.rows });
   } catch (err) {
-    console.error(err);
+    console.error('getHabits error:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
 
