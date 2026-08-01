@@ -19,7 +19,12 @@
       "dest": "/api/index.js"
     },
     {
-      "handle": "filesystem"
+      "src": "/assets/(.*)",
+      "dest": "/client/assets/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|json|png|jpg|jpeg|gif|ico|svg|woff|woff2))",
+      "dest": "/client/$1"
     },
     {
       "src": "/(.*)",
@@ -27,5 +32,6 @@
     }
   ]
 }
+
 
 
