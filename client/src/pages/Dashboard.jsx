@@ -9,8 +9,7 @@ import io from 'socket.io-client';
 import { useCallback } from 'react';
 
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000';
-// ↑ also fixes the hardcoded URL (that's Bug covered later too)
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || (import.meta.env.PROD ? window.location.origin : 'http://localhost:8000');
 
 const Dashboard = () => {
   const socketRef = useRef(null); // ← holds the socket instance
@@ -34,56 +33,34 @@ const Dashboard = () => {
 // ✅ Extract just the id — primitive value, stable reference
 const userId = user?.id;
 
-   const showNotification = (message, type) => {
+  const showNotification = (message, type = 'info') => {
     setNotification({ message, type });
-    setTimeout(() => setNotification(null), 5000);
+    setTimeout(() => setNotification(null), 4000);
   };
 
-  const fetchHabits = useCallback(async () => {
-  try {
-    const res = await habitService.getHabits();
-    setHabits(res.data.data);
-  } catch (err) {
-    console.error('Failed to fetch habits', err);
-  }
-}, []);
-
-const fetchStats = useCallback(async () => {
-  try {
-    const res = await dashboardService.getStats();
-    setStats(res.data.data);
-  } catch {
-    console.error('Failed to fetch stats');
-  }
-}, []);
-
-const fetchInsights = useCallback(async () => { // ✅ wrap in useCallback
-  try {
-    const res = await insightService.getSmartInsights();
-    setInsights(res.data.data);
-  } catch {
-    console.error('Failed to fetch insights');
-  }
-}, []); // ✅ stable
-
-const fetchData = useCallback(async () => {
-  await Promise.all([fetchHabits(), fetchStats(), fetchInsights()]);
-}, [fetchHabits, fetchStats, fetchInsights]);
-
-  const fetchChallenge = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const res = await challengeService.getToday();
-      setChallenge(res.data.data);
+      const [habitsRes, statsRes, challengeRes, insightsRes] = await Promise.all([
+        habitService.getHabits(),
+        dashboardService.getStats(),
+        challengeService.getToday(),
+        insightService.getSmartInsights(),
+      ]);
+
+      if (habitsRes.data) setHabits(habitsRes.data.data);
+      if (statsRes.data) setStats(statsRes.data.data);
+      if (challengeRes.data) setChallenge(challengeRes.data.data);
+      if (insightsRes.data) setInsights(insightsRes.data.data);
     } catch (err) {
-      console.error('Failed to fetch challenge', err);
+      console.error('Failed to load dashboard data', err);
     }
-  };
+  }, []);
 
   const handleCompleteChallenge = async () => {
-    if (!challenge || challenge.completed) return;
+    if (!challenge) return;
     try {
       await challengeService.complete(challenge.id);
-      fetchChallenge();
+      fetchData();
     } catch (err) {
       console.error('Failed to complete challenge', err);
     }
@@ -100,14 +77,13 @@ const fetchData = useCallback(async () => {
   }, [fetchData]);
 
    useEffect(() => {
-    // Only connect once user is confirmed authenticated
-    if (!userId) return;
+    // Only connect socket if authenticated and in dev or when VITE_SOCKET_URL is set
+    if (!userId || (import.meta.env.PROD && !import.meta.env.VITE_SOCKET_URL)) return;
 
-    // Create socket inside the effect, store in ref
     const socket = io(SOCKET_URL, {
-      auth: { token: localStorage.getItem('token') }, // optional: send token
-      reconnectionAttempts: 5,
-      reconnectionDelay: 2000,
+      auth: { token: localStorage.getItem('token') },
+      reconnectionAttempts: 3,
+      reconnectionDelay: 5000,
     });
 
     socketRef.current = socket;
