@@ -109,25 +109,30 @@ async function register(req, res) {
       [newUser.rows[0].id]
     );
 
+    const secret = process.env.JWT_SECRET || 'fallback_secret_key_habit_tracer_2026';
     const token = jwt.sign(
       { id: newUser.rows[0].id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } // ✅ from env
+      secret,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
+
     res.status(201).json({
       success: true,
       data: {
         token,
         user: newUser.rows[0]
-        // ↑ only returns id, name, email, username — password hash never leaves server
       },
       message: 'Account created successfully'
     });
 
   } catch (err) {
     console.error('Register error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({
+      success: false,
+      message: err.message || 'Server error during registration'
+    });
   }
+
 }
 async function login(req, res) {
   const { email, password } = req.body;
@@ -147,10 +152,11 @@ async function login(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid credentials' });
     }
 
+    const secret = process.env.JWT_SECRET || 'fallback_secret_key_habit_tracer_2026';
     const token = jwt.sign(
       { id: user.rows[0].id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } // ✅ was hardcoded '1d'
+      secret,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
     res.json({
@@ -167,9 +173,13 @@ async function login(req, res) {
       message: 'Login successful'
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Login error:', err);
+    res.status(500).json({
+      success: false,
+      message: err.message || 'Server error during login'
+    });
   }
+
 }
 
 
