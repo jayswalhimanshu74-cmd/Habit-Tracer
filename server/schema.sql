@@ -16,14 +16,16 @@ CREATE TABLE IF NOT EXISTS habits (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT NOT NULL,
     category TEXT DEFAULT 'General',
+    difficulty TEXT DEFAULT 'Medium',
     reminder_time TIME,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+
 -- Habit Logs Table
 CREATE TABLE IF NOT EXISTS habit_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), 
     habit_id UUID NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
     date DATE NOT NULL DEFAULT CURRENT_DATE,
     status BOOLEAN NOT NULL DEFAULT TRUE,
