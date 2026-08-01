@@ -88,10 +88,11 @@ exports.completeChallenge = async (req, res) => {
       [points, req.user]
     );
 
-    req.io.to(req.user).emit('achievement', {
+    req.io?.to?.(req.user)?.emit?.('achievement', {
       message: `Challenge Complete! +${points} Points 🏆`
     });
-    req.io.to(req.user).emit('statsUpdated');
+    req.io?.to?.(req.user)?.emit?.('statsUpdated');
+
 
     res.json({
       success: true,

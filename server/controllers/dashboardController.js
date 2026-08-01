@@ -28,11 +28,26 @@ exports.getStats = async (req, res) => {
     const habitsResult = await db.query('SELECT id FROM habits WHERE user_id = $1::uuid', [userId]);
     let globalLongestStreak = 0;
 
-    for (const habit of habitsResult.rows) {
-      const logsResult = await db.query('SELECT * FROM habit_logs WHERE habit_id = $1::uuid ORDER BY date DESC', [habit.id]);
-      const { bestStreak } = habitService.calculateStreaks(logsResult.rows);
-      globalLongestStreak = Math.max(globalLongestStreak, bestStreak);
+    const habitIds = habitsResult.rows.map(h => h.id);
+    if (habitIds.length > 0) {
+      const allLogsResult = await db.query(
+        'SELECT * FROM habit_logs WHERE habit_id = ANY($1::uuid[]) ORDER BY date DESC',
+        [habitIds]
+      );
+
+      const logsByHabit = {};
+      allLogsResult.rows.forEach(log => {
+        if (!logsByHabit[log.habit_id]) logsByHabit[log.habit_id] = [];
+        logsByHabit[log.habit_id].push(log);
+      });
+
+      for (const habitId of habitIds) {
+        const habitLogs = logsByHabit[habitId] || [];
+        const { bestStreak } = habitService.calculateStreaks(habitLogs);
+        globalLongestStreak = Math.max(globalLongestStreak, bestStreak);
+      }
     }
+
 
     // 5. Gamification Stats
     const gamificationResult = await db.query(
